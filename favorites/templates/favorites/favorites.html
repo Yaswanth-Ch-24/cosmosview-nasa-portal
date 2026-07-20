@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="text-align:center;padding:3rem 0 2rem">
+  <h1 style="font-size:2rem;font-weight:700;color:#fff;margin-bottom:.5rem">⭐ My Favorites</h1>
+  <p style="color:#8899cc">{{ favorites|length }} saved item{{ favorites|length|pluralize }}</p>
+</div>
+{% if favorites %}
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem">
+  {% for fav in favorites %}
+  <div class="card" style="padding:1rem">
+    {% if fav.url %}
+    <img src="{{ fav.url }}" alt="{{ fav.title }}" style="width:100%;border-radius:8px;margin-bottom:.75rem;aspect-ratio:16/10;object-fit:cover" loading="lazy">
+    {% endif %}
+    <div style="font-weight:500;color:#fff;margin-bottom:.25rem;font-size:.9rem">{{ fav.title }}</div>
+    <div style="font-size:.75rem;color:#8899cc;margin-bottom:.75rem">{{ fav.date }} · {{ fav.type|upper }}</div>
+    <div style="display:flex;gap:.5rem">
+      <a href="{{ fav.url }}" target="_blank" class="btn" style="font-size:.75rem;padding:.3rem .8rem">View</a>
+      <a href="{% url 'remove_favorite' forloop.counter0 %}" class="btn btn-outline" style="font-size:.75rem;padding:.3rem .8rem;color:#ef4444;border-color:#ef4444">Remove</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:4rem;color:#8899cc">
+  <div style="font-size:3rem;margin-bottom:1rem">⭐</div>
+  <h3 style="margin-bottom:.5rem;color:#fff">No favorites yet</h3>
+  <p>Browse APOD or Mars Rover photos and save your favourites.</p>
+  <a href="/" class="btn" style="margin-top:1rem;display:inline-block">Browse APOD →</a>
+</div>
+{% endif %}
+{% endblock %}

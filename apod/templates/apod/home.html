@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
+  .hero { text-align: center; padding: 3rem 0 2rem; }
+  .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #4f8ef7, #a855f7, #ec4899);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { color: #8899cc; font-size: 1rem; }
+
+  .date-picker { display: flex; gap: 1rem; align-items: center; justify-content: center; margin: 1.5rem 0; flex-wrap: wrap; }
+  .date-picker input[type="date"] {
+    background: rgba(255,255,255,0.06); border: 1px solid #2d3f6e;
+    color: #e0e6ff; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem;
+  }
+  .quick-dates { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem; }
+  .quick-dates a {
+    padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;
+    border: 1px solid #2d3f6e; color: #8899cc; text-decoration: none; transition: all 0.2s;
+  }
+  .quick-dates a:hover, .quick-dates a.active { background: #4f8ef7; color: #fff; border-color: #4f8ef7; }
+
+  .apod-card { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem; }
+  @media(max-width:768px){ .apod-card { grid-template-columns: 1fr; } }
+  .apod-media img, .apod-media iframe {
+    width: 100%; border-radius: 12px; aspect-ratio: 16/10; object-fit: cover;
+  }
+  .apod-media iframe { height: 350px; border: none; }
+  .apod-info { padding: 0.5rem 0; }
+  .apod-info h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff; }
+  .apod-info .meta { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .apod-info .explanation {
+    color: #aab4cc; font-size: 0.9rem; line-height: 1.7;
+    max-height: 280px; overflow-y: auto; padding-right: 0.5rem;
+  }
+  .apod-info .explanation::-webkit-scrollbar { width: 4px; }
+  .apod-info .explanation::-webkit-scrollbar-thumb { background: #2d3f6e; border-radius: 4px; }
+  .actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+  .error-card { text-align: center; padding: 3rem; }
+  .error-card .emoji { font-size: 3rem; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Astronomy Picture of the Day</h1>
+  <p>Every day, NASA features a different image or photograph of our universe</p>
+</div>
+
+<form method="get" class="date-picker">
+  <input type="date" name="date" value="{{ selected_date }}" max="{{ today }}" onchange="this.form.submit()">
+  <button type="submit" class="btn">View</button>
+</form>
+
+{% if dates %}
+<div class="quick-dates">
+  {% for d in dates %}
+    <a href="?date={{ d }}" {% if d == selected_date %}class="active"{% endif %}>{{ d }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if apod %}
+  <div class="card" style="padding:1.5rem">
+    <div class="apod-card">
+      <div class="apod-media">
+        {% if apod.media_type == 'video' %}
+          <iframe src="{{ apod.url }}" allowfullscreen></iframe>
+        {% else %}
+          <img src="{{ apod.hdurl|default:apod.url }}" alt="{{ apod.title }}" loading="lazy">
+        {% endif %}
+      </div>
+      <div class="apod-info">
+        <h2>{{ apod.title }}</h2>
+        <div class="meta">
+          <span class="tag">📅 {{ apod.date }}</span>
+          {% if apod.copyright %}<span class="tag">© {{ apod.copyright }}</span>{% endif %}
+          <span class="tag">{{ apod.media_type|upper }}</span>
+        </div>
+        <div class="explanation">{{ apod.explanation }}</div>
+        <div class="actions">
+          <a href="{{ apod.hdurl|default:apod.url }}" target="_blank" class="btn">View Full Image</a>
+          <a href="/favorites/add/?title={{ apod.title|urlencode }}&url={{ apod.hdurl|default:apod.url|urlencode }}&date={{ apod.date }}&type=apod" class="btn btn-outline">⭐ Save to Favorites</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="card error-card">
+    <div class="emoji">🔭</div>
+    <h3 style="margin-bottom:0.5rem">No data for this date</h3>
+    <p style="color:#8899cc;margin-bottom:1rem">Try another date or check your NASA API key.</p>
+    <a href="/" class="btn">Back to Today</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+<style>
+.hero{text-align:center;padding:3rem 0 2rem}
+.hero h1{font-size:2rem;font-weight:700;margin-bottom:.5rem;background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.controls{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin:1.5rem 0}
+.controls select,.controls input[type="date"]{background:rgba(255,255,255,.06);border:1px solid #2d3f6e;color:#e0e6ff;padding:.5rem 1rem;border-radius:8px;font-size:.9rem}
+.photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:1.5rem}
+.photo-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden}
+.photo-card img{width:100%;aspect-ratio:1;object-fit:cover}
+.photo-meta{padding:.75rem;font-size:.75rem;color:#8899cc}
+.empty{text-align:center;padding:3rem;color:#8899cc}
+</style>
+{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>🔴 Mars Rover Photos</h1>
+  <p style="color:#8899cc">Explore images taken by NASA's Mars rovers</p>
+</div>
+<form method="get" class="controls">
+  <select name="rover">
+    {% for r in rovers %}<option value="{{ r }}" {% if r == rover %}selected{% endif %}>{{ r|title }}</option>{% endfor %}
+  </select>
+  <input type="date" name="date" value="{{ selected_date }}" max="2023-12-31">
+  {% if cameras %}
+  <select name="camera">
+    <option value="">All cameras</option>
+    {% for cam in cameras %}<option value="{{ cam }}" {% if cam == selected_camera %}selected{% endif %}>{{ cam }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <button type="submit" class="btn">Search</button>
+</form>
+{% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+{% if photos %}
+<div class="photos-grid">
+  {% for photo in photos %}
+  <div class="photo-card">
+    <img src="{{ photo.img_src }}" alt="Mars Rover Photo" loading="lazy">
+    <div class="photo-meta">
+      📷 {{ photo.camera.full_name }}<br>
+      🗓️ {{ photo.earth_date }} · Sol {{ photo.sol }}<br>
+      🤖 {{ photo.rover.name }}
+      <br><a href="/favorites/add/?title={{ photo.rover.name }}+Photo+{{ photo.id }}&url={{ photo.img_src|urlencode }}&date={{ photo.earth_date }}&type=mars" style="color:#4f8ef7;font-size:.7rem">⭐ Save</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <p style="font-size:2rem;margin-bottom:.5rem">🔭</p>
+  <p>No photos found for this date. Try another date or camera.</p>
+  <p style="margin-top:.5rem;font-size:.8rem">Tip: Try 2023-01-01 with Curiosity</p>
+</div>
+{% endif %}
+{% endblock %}
